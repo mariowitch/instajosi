@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heizmobil InstaStudio – Grasegger Manufaktur & Handwerk</title>
+  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
+</head>
+<body>
+
+  <!-- Top Header Navigation (Grasegger Style) -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🏔️</div>
+      <div class="brand-text">
+        <h1>Heizmobil InstaStudio</h1>
+        <span>ALPENLÄNDISCHES HANDWERK & MOBILE WÄRME • WERDENFELS Q1</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button id="btnExportJson" class="btn btn-glass">
+        <span>📥</span> JSON Export
+      </button>
+      <button id="btnExportCsv" class="btn btn-glass">
+        <span>📊</span> CSV Export
+      </button>
+      <button id="btnResetCache" class="btn btn-glass" onclick="if(confirm('Lokalen Cache löschen und Inhaltsplan neu laden?')){localStorage.clear();location.reload();}" title="LocalStorage Cache leeren">
+        <span>🔄</span> Reset Cache
+      </button>
+      <button id="btnTestWebhook" class="btn btn-primary">
+        <span>⚡</span> Webhook Payload Trigger
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Application Container -->
+  <main class="app-container">
+    
+    <!-- Left Section: Content Grid / List View -->
+    <section class="main-content">
+      
+      <div class="view-header">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="grid">📱 Instagram Feed (3x3 Raster)</button>
+          <button class="tab-btn" data-tab="list">📅 Wochen-Kalender</button>
+        </div>
+
+        <div class="stats-bar">
+          <div id="dateStatChip" class="stat-chip">📅 Laden...</div>
+          <div id="usageStatChip" class="stat-chip" title="Monatliches Nano-Banana-Kontingent (Richtwert aus $10/Mo AI-Pro-Credits ÷ ~$0,134/2K-Bild)">🍌 Monat: <strong>Laden...</strong></div>
+          <div class="stat-chip">Planung: <strong>13 Wochen</strong></div>
+          <div class="stat-chip">Region: <strong>Garmisch-Partenkirchen</strong></div>
+        </div>
+      </div>
+
+      <!-- 3x3 Grid Container -->
+      <div id="gridView" class="grid-view">
+        <!-- Dynamically rendered via app.js -->
+      </div>
+
+      <!-- List Container (Hidden by default) -->
+      <div id="listView" class="list-view" style="display: none;">
+        <!-- Dynamically rendered via app.js -->
+      </div>
+
+    </section>
+
+    <!-- Right Section: Smartphone Inspector Panel -->
+    <aside class="inspector-panel">
+      
+      <div class="smartphone-frame">
+        <div class="smartphone-screen">
+          
+          <div class="phone-notch"></div>
+
+          <!-- Authentic Instagram Post Header -->
+          <div class="ig-post-header">
+            <div class="ig-user-info">
+              <div class="ig-avatar">
+                <div class="ig-avatar-inner">H</div>
+              </div>
+              <div>
+                <div class="ig-handle">heizmobil</div>
+                <div id="igLocation" class="ig-location">Garmisch-Partenkirchen</div>
+              </div>
+            </div>
+            <div style="color: var(--grasegger-green); font-weight: bold;">•••</div>
+          </div>
+
+          <!-- Instagram Media Image Container -->
+          <div class="ig-media-container" style="position: relative;">
+            <img id="igMediaImage" class="ig-media-image" src="" alt="Post Visual">
+            <button id="btnMediaOverlayDownload" class="btn-overlay-download" title="HD Foto herunterladen">
+              📥 Foto Download
+            </button>
+          </div>
+
+          <!-- Instagram Action Bar -->
+          <div class="ig-actions">
+            <div class="ig-action-left">
+              <span>❤️</span>
+              <span>💬</span>
+              <span>✈️</span>
+            </div>
+            <span>🔖</span>
+          </div>
+
+          <div class="ig-likes">Gefällt 142 Mal</div>
+
+          <!-- Caption Box -->
+          <div class="ig-caption-box">
+            <div id="igCaptionText">
+              <!-- Rendered via app.js -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Inspector Action Bar Below Smartphone -->
+      <div class="inspector-actions">
+        <h3 id="inspectorTitle" style="font-family: var(--font-serif); font-size: 1.2rem; color: var(--grasegger-green); font-weight: 700;">Beitrag Inspektor</h3>
+        
+        <button id="btnRegeneratePost" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--grasegger-gold); border-color: var(--grasegger-gold);">
+          <span>🔄</span> Beitrag & Bild neu generieren
+        </button>
+
+        <button id="btnDownloadImage" class="btn btn-primary" style="width: 100%; justify-content: center; background: #059669; border-color: #059669; margin-top: 0.4rem;">
+          <span>📥</span> HD Foto Herunterladen
+        </button>
+
+        <button id="btnPublishInstagram" class="btn btn-primary" style="width: 100%; justify-content: center; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border-color: #bc1888; margin-top: 0.4rem;">
+          <span>🚀</span> Auf Instagram posten
+        </button>
+
+        <div style="display: flex; gap: 0.6rem; margin-top: 0.4rem;">
+          <button id="btnEditPost" class="btn btn-glass" style="flex: 1;">✏️ Text bearbeiten</button>
+          <button id="btnCopyCaption" class="btn btn-glass" style="flex: 1;">📋 Caption Kopieren</button>
+        </div>
+        <button id="btnCopyPrompt" class="btn btn-glass" style="width: 100%;">🎨 Prompt anzeigen</button>
+        <div id="promptPreviewBox" style="display: none; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 0.85rem; font-size: 0.8rem; line-height: 1.45; color: var(--text-main);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+            <strong style="color: var(--grasegger-green); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;">Bild-Prompt</strong>
+            <button type="button" id="btnCopyPromptInner" class="btn btn-glass" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">📋 Kopieren</button>
+          </div>
+          <div id="promptPreviewText" style="white-space: pre-wrap; word-break: break-word; color: var(--text-muted);"></div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Edit Post Modal Window -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 class="modal-title">Beitrag Bearbeiten</h2>
+        <button id="btnCloseModal" class="btn btn-glass btn-icon-only">✕</button>
+      </div>
+
+      <form id="editForm">
+        <div class="form-group">
+          <label class="form-label" for="editTopic">Thema / Titel</label>
+          <input type="text" id="editTopic" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editLocation">Standort / Ort im Werdenfelser Land</label>
+          <input type="text" id="editLocation" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editCaption">Instagram-Caption (Text auf Deutsch)</label>
+          <textarea id="editCaption" class="form-textarea" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="editPrompt">Bild-/Video-Generierungs-Prompt (Midjourney / FLUX)</label>
+          <textarea id="editPrompt" class="form-textarea" required></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" onclick="closeModal()" class="btn btn-glass">Abbrechen</button>
+          <button type="submit" class="btn btn-primary">Speichern & Aktualisieren</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js?v=11"></script>
+</body>
+</html>

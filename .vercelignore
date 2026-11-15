@@ -1,0 +1,12 @@
+config.json
+usage_stats.json
+server.py
+backup_profi_version
+.gemini
+.agent
+.DS_Store
+*.md
+node_modules
+.env
+.env.*
+.vercel

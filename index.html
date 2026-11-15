@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heizmobil – Instagram Helfer</title>
+  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="simple.css?v=3">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏔️</text></svg>">
+</head>
+<body class="simple-mode">
+
+  <!-- Kopfzeile -->
+  <div class="s-header">
+    <div class="s-brand">
+      <span class="s-brand-icon">🏔️</span>
+      <div>
+        <div class="s-brand-title">Heizmobil – Instagram Helfer</div>
+        <div id="dateStatChip" class="s-today">Laden…</div>
+      </div>
+    </div>
+    <button id="btnHelp" class="s-btn s-btn-light s-btn-small">❓ Hilfe</button>
+  </div>
+
+  <main class="s-main">
+
+    <!-- Kurz-Anleitung -->
+    <div id="helpBox" class="s-help">
+      <div class="s-help-title">So einfach geht's:</div>
+      <ol>
+        <li><strong>Beitrag ansehen</strong> – unten sehen Sie das Bild und den Text für diese Woche.</li>
+        <li><strong>Gefällt es Ihnen?</strong> Dann auf den großen Knopf <strong>„Auf Instagram veröffentlichen"</strong> drücken. Fertig!</li>
+        <li><strong>Gefällt es nicht?</strong> Mit <strong>„Neues Bild &amp; neuer Text"</strong> einen neuen Vorschlag machen lassen – oder den Text selbst ändern.</li>
+      </ol>
+      <button id="btnHideHelp" class="s-btn s-btn-light s-btn-small">Verstanden, ausblenden</button>
+    </div>
+
+    <!-- Wochen-Auswahl -->
+    <div class="s-weeknav">
+      <button id="btnPrevWeek" class="s-btn s-btn-light s-nav-btn">◀ Woche zurück</button>
+      <div class="s-week-info">
+        <div id="inspectorTitle" class="s-week-title">Woche 1</div>
+        <div id="weekSubtitle" class="s-week-sub"></div>
+      </div>
+      <button id="btnNextWeek" class="s-btn s-btn-light s-nav-btn">Woche vor ▶</button>
+    </div>
+
+    <!-- Der Beitrag -->
+    <div class="s-post">
+      <div class="s-post-image">
+        <img id="igMediaImage" src="" alt="Bild des Beitrags">
+      </div>
+      <div class="s-post-text">
+        <div class="s-label">Thema</div>
+        <div id="postTopic" class="s-topic"></div>
+        <div class="s-label">📍 Ort</div>
+        <div id="igLocation" class="s-location"></div>
+        <div class="s-label">Text für Instagram</div>
+        <div id="igCaptionText" class="s-caption"></div>
+      </div>
+    </div>
+
+    <!-- Aktionen -->
+    <div class="s-actions">
+      <button id="btnPublishInstagram" class="s-btn s-btn-insta s-btn-huge">
+        🚀 Auf Instagram veröffentlichen
+      </button>
+      <div id="instaHint" class="s-hint" style="display:none;"></div>
+
+      <div class="s-action-row">
+        <button id="btnRegeneratePost" class="s-btn s-btn-gold">🔄 Neues Bild &amp; neuer Text</button>
+        <button id="btnEditPost" class="s-btn s-btn-light">✏️ Text bearbeiten</button>
+      </div>
+      <div class="s-action-row">
+        <button id="btnDownloadImage" class="s-btn s-btn-light">📥 Bild speichern</button>
+        <button id="btnCopyCaption" class="s-btn s-btn-light">📋 Text kopieren</button>
+      </div>
+
+      <div id="usageStatChip" class="s-usage">Laden…</div>
+    </div>
+
+    <!-- Übersicht aller Wochen -->
+    <div class="s-overview">
+      <h2 class="s-h2">Alle Wochen im Überblick</h2>
+      <p class="s-muted">Auf ein Bild tippen, um diesen Beitrag oben anzuzeigen.</p>
+      <div id="gridView" class="s-grid"></div>
+    </div>
+
+    <!-- Expertenbereich (versteckt) -->
+    <details class="s-expert">
+      <summary>⚙️ Für Experten (normalerweise nicht nötig)</summary>
+      <div class="s-expert-inner">
+        <button id="btnCopyPrompt" class="s-btn s-btn-light s-btn-small">🎨 Prompt anzeigen</button>
+        <div id="promptPreviewBox" style="display:none;" class="s-prompt-box">
+          <div id="promptPreviewText"></div>
+          <button type="button" id="btnCopyPromptInner" class="s-btn s-btn-light s-btn-small">📋 Prompt kopieren</button>
+        </div>
+        <div class="s-expert-row">
+          <button id="btnExportJson" class="s-btn s-btn-light s-btn-small">📥 JSON Export</button>
+          <button id="btnExportCsv" class="s-btn s-btn-light s-btn-small">📊 CSV Export</button>
+          <button id="btnTestWebhook" class="s-btn s-btn-light s-btn-small">⚡ Webhook Test</button>
+          <button id="btnResetCache" class="s-btn s-btn-light s-btn-small" onclick="if(confirm('Alle lokalen Änderungen löschen und Plan neu laden?')){localStorage.clear();location.reload();}">🔄 Zurücksetzen</button>
+        </div>
+      </div>
+    </details>
+
+  </main>
+
+  <!-- Zugangscode-Sperre -->
+  <div id="loginOverlay" class="s-login" style="display:none;">
+    <form id="loginForm" class="s-login-box">
+      <div class="s-login-icon">🏔️</div>
+      <h1 class="s-login-title">Heizmobil – Instagram Helfer</h1>
+      <p class="s-login-text">Bitte den Zugangscode eingeben.<br>(Danach bleibt dieses Gerät angemeldet.)</p>
+      <input type="password" id="loginPasscode" class="s-login-input" placeholder="Zugangscode" autocomplete="current-password" required>
+      <div id="loginError" class="s-login-error" style="display:none;"></div>
+      <button type="submit" id="btnLoginSubmit" class="s-btn s-btn-green" style="width:100%;">🔓 Anmelden</button>
+    </form>
+  </div>
+
+  <!-- Bitte-warten-Anzeige -->
+  <div id="busyOverlay" class="s-busy">
+    <div class="s-busy-box">
+      <div class="s-spinner"></div>
+      <div id="busyTitle" class="s-busy-title">Bitte warten…</div>
+      <div id="busyText" class="s-busy-text">Das dauert etwa 30 Sekunden. Bitte nichts anklicken.</div>
+    </div>
+  </div>
+
+  <!-- Text bearbeiten -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal-window s-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">✏️ Text bearbeiten</h2>
+        <button id="btnCloseModal" class="s-btn s-btn-light s-btn-small">✕ Schließen</button>
+      </div>
+
+      <form id="editForm">
+        <div class="form-group">
+          <label class="form-label" for="editCaption">Text für Instagram</label>
+          <textarea id="editCaption" class="form-textarea s-textarea" required></textarea>
+        </div>
+
+        <details class="s-expert s-expert-modal">
+          <summary>Weitere Angaben (Thema, Ort, Bild-Beschreibung)</summary>
+          <div class="form-group">
+            <label class="form-label" for="editTopic">Thema</label>
+            <input type="text" id="editTopic" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="editLocation">Ort</label>
+            <input type="text" id="editLocation" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="editPrompt">Bild-Beschreibung (für neue Bilder, Englisch)</label>
+            <textarea id="editPrompt" class="form-textarea" required></textarea>
+          </div>
+        </details>
+
+        <div class="s-modal-buttons">
+          <button type="button" onclick="closeModal()" class="s-btn s-btn-light">Abbrechen</button>
+          <button type="submit" class="s-btn s-btn-green">✅ Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js?v=13"></script>
+</body>
+</html>

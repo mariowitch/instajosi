@@ -1,0 +1,9 @@
+config.json
+usage_stats.json
+node_modules/
+.env
+.env.*
+.vercel/
+.DS_Store
+.gemini/
+.agent/
