@@ -1,6 +1,5 @@
 import { jsonResponse, requireAuth } from '../lib/auth.js';
-
-const GRAPH_BASE = 'https://graph.facebook.com/v21.0';
+import { getInstagramCredentials } from '../lib/storage.js';
 
 function resolvePublicImageUrl(imageUrl, request) {
   if (imageUrl.startsWith('https://')) {
@@ -23,15 +22,17 @@ export async function POST(request) {
   if (denied) return denied;
 
   try {
-    const igUserId = (process.env.INSTAGRAM_ACCOUNT_ID || '').trim();
-    const accessToken = (process.env.INSTAGRAM_ACCESS_TOKEN || '').trim();
-
-    if (!igUserId || !accessToken) {
+    const creds = await getInstagramCredentials();
+    if (!creds) {
       return jsonResponse(
-        { error: 'Instagram-Zugangsdaten fehlen in den Vercel Environment Variables.' },
+        { error: 'Bitte zuerst über „Mit Instagram anmelden“ einloggen.' },
         400
       );
     }
+    const { ig_user_id: igUserId, access_token: accessToken, source } = creds;
+    const graphBase = source === 'instagram_oauth'
+      ? 'https://graph.instagram.com/v21.0'
+      : 'https://graph.facebook.com/v21.0';
 
     const body = await request.json();
     const rawImageUrl = (body.image_url || '').trim();
@@ -50,7 +51,7 @@ export async function POST(request) {
     const publicImageUrl = resolvePublicImageUrl(rawImageUrl, request);
 
     // 1. Container erstellen
-    const createRes = await fetch(`${GRAPH_BASE}/${encodeURIComponent(igUserId)}/media`, {
+    const createRes = await fetch(`${graphBase}/${encodeURIComponent(igUserId)}/media`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -68,7 +69,7 @@ export async function POST(request) {
 
     // 2. Warten bis Meta das Bild verarbeitet hat
     for (let i = 0; i < 12; i++) {
-      const statusUrl = `${GRAPH_BASE}/${encodeURIComponent(creationId)}?fields=status_code,status&access_token=${encodeURIComponent(accessToken)}`;
+      const statusUrl = `${graphBase}/${encodeURIComponent(creationId)}?fields=status_code,status&access_token=${encodeURIComponent(accessToken)}`;
       const statusRes = await fetch(statusUrl);
       const statusData = await statusRes.json().catch(() => ({}));
       if (statusData.status_code === 'FINISHED') break;
@@ -79,7 +80,7 @@ export async function POST(request) {
     }
 
     // 3. Veröffentlichen
-    const pubRes = await fetch(`${GRAPH_BASE}/${encodeURIComponent(igUserId)}/media_publish`, {
+    const pubRes = await fetch(`${graphBase}/${encodeURIComponent(igUserId)}/media_publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({

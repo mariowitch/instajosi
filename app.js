@@ -96,18 +96,66 @@ function setupHelpBox() {
 }
 
 async function checkInstagramStatus() {
+  // OAuth-Rückmeldung aus URL prüfen
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("ig_connected") === "1") {
+    showToast("🎉 Instagram erfolgreich verbunden!");
+    window.history.replaceState({}, "", window.location.pathname);
+  } else if (params.get("ig_error")) {
+    const err = params.get("ig_error");
+    alert(`Instagram-Anmeldung nicht abgeschlossen (${err}).\n\nHinweis: Das Instagram-Konto muss ein Business- oder Creator-Konto sein.`);
+    window.history.replaceState({}, "", window.location.pathname);
+  }
+
   try {
     const res = await fetch('/api/status');
     if (!res.ok) return;
     const status = await res.json();
     instagramConfigured = !!(status.instagram_configured && status.public_base_url_configured);
     const hint = document.getElementById("instaHint");
-    if (hint && !instagramConfigured) {
-      hint.innerHTML = "ℹ️ <strong>Instagram ist noch nicht verbunden.</strong> Bis dahin: <strong>„Bild speichern“</strong> und <strong>„Text kopieren“</strong> drücken und den Beitrag in der Instagram-App selbst einfügen.";
+    if (!hint) return;
+
+    if (instagramConfigured) {
+      const who = status.instagram_username ? ` (<strong>@${escapeXml(status.instagram_username)}</strong>)` : "";
+      hint.style.background = "#ECFDF5";
+      hint.style.borderColor = "#15803D";
+      hint.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:0.8rem; flex-wrap:wrap;">
+          <span>✅ <strong>Mit Instagram verbunden</strong>${who}</span>
+          <button type="button" id="btnIgLogout" class="s-btn s-btn-light s-btn-small">Instagram abmelden</button>
+        </div>`;
+      hint.style.display = "block";
+      document.getElementById("btnIgLogout")?.addEventListener("click", logoutInstagram);
+    } else if (status.instagram_oauth_ready) {
+      hint.style.background = "#EFF6FF";
+      hint.style.borderColor = "#3B82F6";
+      hint.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <span>ℹ️ <strong>Bitte einmal mit Instagram anmelden</strong>, damit der große Knopf direkt veröffentlichen kann:</span>
+          <a href="/api/instagram/login" class="s-btn s-btn-insta" style="text-decoration:none;">📸 Mit Instagram anmelden</a>
+        </div>`;
+      hint.style.display = "block";
+    } else {
+      hint.style.background = "#EFF6FF";
+      hint.style.borderColor = "#3B82F6";
+      hint.innerHTML = "ℹ️ <strong>Instagram-Anmeldung ist noch nicht eingerichtet</strong> (Meta App-ID fehlt in Vercel). Bis dahin: <strong>„Bild speichern“</strong> und <strong>„Text kopieren“</strong> drücken und den Beitrag in der Instagram-App selbst einfügen.";
       hint.style.display = "block";
     }
   } catch (e) {
     console.warn("Status konnte nicht geladen werden:", e.message);
+  }
+}
+
+async function logoutInstagram() {
+  if (!confirm("Wirklich von Instagram abmelden?")) return;
+  try {
+    const res = await fetch('/api/instagram/logout', { method: 'POST' });
+    if (res.ok) {
+      showToast("Von Instagram abgemeldet.");
+      checkInstagramStatus();
+    }
+  } catch (e) {
+    console.warn("Instagram logout error:", e.message);
   }
 }
 
