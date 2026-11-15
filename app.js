@@ -383,9 +383,15 @@ async function generateRealAiPhotoAsync(post) {
       }
     } else {
       const err = await res.json().catch(() => ({}));
+      if (res.status === 429) {
+        if (err.usage) updateUsageChip(err.usage);
+        alert(err.error || 'Das monatliche Bilder-Limit ist erreicht.');
+        throw new Error('LIMIT_REACHED');
+      }
       console.warn('⚠️ Bild-API Fehler:', err.error || res.status);
     }
   } catch (err) {
+    if (err?.message === 'LIMIT_REACHED') throw err;
     console.warn('⚠️ Server nicht erreichbar, nutze Canvas-Fallback:', err.message);
   }
 

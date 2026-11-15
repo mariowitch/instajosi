@@ -1,5 +1,5 @@
 import { jsonResponse, requireAuth } from '../lib/auth.js';
-import { incrementMonthlyUsage, uploadImageBuffer } from '../lib/storage.js';
+import { getMonthlyUsage, incrementMonthlyUsage, uploadImageBuffer } from '../lib/storage.js';
 
 async function generateWithNanoBanana(prompt, apiKey) {
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
@@ -70,6 +70,19 @@ export async function POST(request) {
 
     if (!prompt.trim()) {
       return jsonResponse({ error: 'Prompt fehlt.' }, 400);
+    }
+
+    // Hard server-side cap to protect Google Cloud / AI Studio budget
+    const currentUsage = await getMonthlyUsage();
+    if (currentUsage.nano_banana_used >= currentUsage.monthly_limit) {
+      return jsonResponse(
+        {
+          error: `Das monatliche Bilder-Limit (${currentUsage.monthly_limit} Bilder) ist für diesen Monat erreicht.`,
+          limit_reached: true,
+          usage: currentUsage,
+        },
+        429
+      );
     }
 
     let imgBuffer = null;
