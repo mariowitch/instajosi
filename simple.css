@@ -61,7 +61,7 @@ body.simple-mode {
   background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
   color: #fff;
 }
-.s-btn-huge  { width: 100%; min-height: 84px; font-size: 1.5rem; }
+.s-btn-huge  { width: 100%; max-width: 460px; margin: 0 auto; min-height: 58px; font-size: 1.2rem; padding: 0.65rem 1.4rem; }
 .s-btn-small { min-height: 48px; font-size: 1rem; padding: 0.5rem 1rem; }
 
 /* ---------- Hilfe ---------- */
